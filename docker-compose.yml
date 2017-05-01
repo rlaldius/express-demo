@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+    command: "--smallfiles --logpath=/dev/null"
+    container_name: mongo
+  web:
+    build: .
+#    command: node index.js
+#    volumes:
+#      - .:/myapp
+    ports:
+      - "8090:8888"
+    links:
+      - db
+    environment:
+      PORT: 8090 # this is optional, allows express to use process.env.PORT instead of a raw 8090
+    container_name: myapp
