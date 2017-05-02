@@ -4,7 +4,9 @@ var path = require('path');
 var expressValidator = require('express-validator');
 var mongojs = require('mongojs');
 
-var db = mongojs('mongo/customerapp', ['people']);
+var db = mongojs('mongo/customerapp', ['people']); // App & MongoDB - docker-compose
+// var db = mongojs('192.168.99.100/customerapp', ['people']); // MongoDB - docker Container
+// var db = mongojs('customerapp', ['people']); // App & MongoDB - local host
 
 db.on('connect', function () {
     console.log('database connected')
@@ -25,34 +27,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Global Vars
 app.use(function (req, res, next) {
-     res.locals.errors = null;
-     next();
+    res.locals.errors = null;
+    next();
 });
 
 // Express Validator middleware
 app.use(expressValidator({
-    errorFormatter: function(param, msg, value) {
+    errorFormatter: function (param, msg, value) {
         var namespace = param.split('.')
-            , root    = namespace.shift()
+            , root = namespace.shift()
             , formParam = root;
 
-        while(namespace.length) {
+        while (namespace.length) {
             formParam += '[' + namespace.shift() + ']';
         }
         return {
-            param : formParam,
-            msg   : msg,
-            value : value
+            param: formParam,
+            msg: msg,
+            value: value
         };
     }
 }));
 
 
 app.get("/", function (req, res) {
-
     db.people.find(function (err, docs) {
-
-        if(err) {
+        if (err) {
             res.send(err);
         } else {
             res.render('index', {
@@ -60,7 +60,7 @@ app.get("/", function (req, res) {
                 users: docs
             });
         }
-    })
+    });
 });
 
 app.post("/users/add", function (req, res) {
@@ -71,12 +71,12 @@ app.post("/users/add", function (req, res) {
 
     var errors = req.validationErrors();
 
-    if(errors) {
+    if (errors) {
         res.render('index', {
             title: 'Customers',
-            users: {},
+            users: [{}],
             errors: errors
-        })
+        });
     } else {
         var newUser = {
             first_name: req.body.first_name,
@@ -85,7 +85,7 @@ app.post("/users/add", function (req, res) {
         };
 
         db.people.insert(newUser, function (err, result) {
-            if(err) {
+            if (err) {
                 console.log(err);
             } else {
                 console.log('SUCCESS !!!');
@@ -94,6 +94,18 @@ app.post("/users/add", function (req, res) {
         });
 
     }
+});
+
+app.delete('/users/delete/:id', function (req, res) {
+    db.people.remove({
+        _id: mongojs.ObjectId(req.params.id, function (err, result) {
+            if (err) {
+                console.log(err);
+            } else {
+                res.redirect('/');
+            }
+        })
+    });
 });
 
 app.listen(3000, function () {

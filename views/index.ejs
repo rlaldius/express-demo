@@ -1,11 +1,12 @@
 <% include partials/header %>
 
+    <h4><a href="/">Home</a> </h4>
     <h2> Add Customer </h2>
 
     <% if(errors) { %>
         <ul>
             <% errors.forEach(function(error) { %>
-                <li> <%= error.msg  %> </li>
+                <li style="color:red"> <%= error.msg  %> </li>
             <% }) %>
         </ul>
     <% } %>
@@ -23,10 +24,18 @@
         <input type="submit" value="Submit">
     </form>
 
-    <h2><%= title %></h2>
-    <ul>
-        <% users.forEach(function(user) { %>
-            <li> <%= user.first_name %> <%= user.last_name %> </li>
-        <% }) %>
-    </ul>
+    <% if(!errors) { %>
+        <hr>
+        <p>
+        <h2><%= title %></h2>
+        <ul>
+            <% users.forEach(function(user) { %>
+                <li>
+                    <%= user.first_name %> <%= user.last_name %>
+                    - <a href="#" class="deleteUser" data-id="<%= user._id %>"> Delete </a>
+
+                </li>
+            <% }) %>
+        </ul>
+    <% } %>
 <% include partials/footer %>
