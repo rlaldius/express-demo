@@ -4,20 +4,13 @@ var path = require('path');
 var expressValidator = require('express-validator');
 var mongojs = require('mongojs');
 
-var db = mongojs('192.168.99.100/çustomerapp');
+var db = mongojs('mongo/customerapp', ['people']);
 
 db.on('connect', function () {
     console.log('database connected')
 });
 
 var app = express();
-
-// var logger = function (req, res, next) {
-//     console.log("logging ......")
-//     next()
-// }
-//
-// app.use(logger)
 
 // View Engine
 app.set('view engine', 'ejs');
@@ -54,44 +47,20 @@ app.use(expressValidator({
     }
 }));
 
-var users = [
-    {
-        id: 1,
-        first_name: 'Teff',
-        last_name: 'Burry',
-        email: 'tBurry@gmail.com'
-    },
-    {
-        id: 2,
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'jDoe@gmail.com'
-    },
-    {
-        id: 3,
-        first_name: 'Valo',
-        last_name: 'Pell',
-        email: 'vPell@gmail.com'
-    }
-];
 
 app.get("/", function (req, res) {
 
-    db.users.find(function (err, docs) {
+    db.people.find(function (err, docs) {
 
         if(err) {
-            console.log(err)
+            res.send(err);
         } else {
-            console.log(docs);
+            res.render('index', {
+                title: 'Customers',
+                users: docs
+            });
         }
-
-        res.render('index', {
-            title: 'Customers',
-            users: users
-        });
     })
-
-
 });
 
 app.post("/users/add", function (req, res) {
@@ -105,7 +74,7 @@ app.post("/users/add", function (req, res) {
     if(errors) {
         res.render('index', {
             title: 'Customers',
-            users: users,
+            users: {},
             errors: errors
         })
     } else {
@@ -114,7 +83,16 @@ app.post("/users/add", function (req, res) {
             last_name: req.body.last_name,
             email: req.body.email
         };
-        console.log('SUCCESS !!!');
+
+        db.people.insert(newUser, function (err, result) {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log('SUCCESS !!!');
+                res.redirect('/');
+            }
+        });
+
     }
 });
 

@@ -3,20 +3,17 @@
 - Install Node.js
 - Run : 
     ``` 
-    node index.js
+    npm install
+    node app.js
 
-# Run with Docker
-- Install Docker
-- Build : 
-    ```
-    docker build -t "myapp" .
+## Run with docker-compose
 
-- Run : 
-    ```
-    docker run -it --rm -p 8090:8888 myapp
+- Build & Run:
+    ``` 
+    docker-compose up
 
-- Open app in browser : 
-    ```
-    192.168.99.100:8090 (Windows) 
+## Open app in browser 
+
+    192.168.99.100:3000 (Windows - Docker Toolbox) 
     OR 
-    localhost:8090 (Mac)
+    localhost:3000 (Mac/Linux)
